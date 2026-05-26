@@ -1,26 +1,476 @@
-@import "tailwindcss";
-
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --ink: #0E0C0B;
+  --ink-soft: #1A1714;
+  --paper: #F4F1EB;
+  --paper-2: #EBE6DC;
+  --paper-3: #E0D9CB;
+  --wine: #6B1414;
+  --wine-2: #8B1F1F;
+  --clay: #C4956A;
+  --moss: #3F4A36;
+  --line: rgba(14,12,11,.12);
+  --line-2: rgba(14,12,11,.06);
+  --muted: #6B5F52;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+html, body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: "Geist", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+::selection { background: var(--wine); color: var(--paper); }
+a { color: inherit; text-decoration: none; }
+img { display: block; max-width: 100%; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+
+.serif { font-family: "Instrument Serif", serif; font-weight: 400; letter-spacing: -0.01em; line-height: 1; }
+.it { font-style: italic; color: var(--wine); }
+.mono { font-family: "Geist Mono", monospace; font-weight: 400; letter-spacing: .04em; text-transform: uppercase; font-size: 11px; }
+
+/* image placeholder */
+.img-slot {
+  display: block;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: #2a201c;
+}
+.light .img-slot, .dishes .img-slot, .gal .img-slot, .reserva .img-slot { background: var(--paper-3); }
+
+/* ============== NAV ============== */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
+  padding: 20px 28px; transition: background .4s, backdrop-filter .4s, padding .4s, color .4s;
+}
+.nav.scrolled {
+  background: rgba(244,241,235,.88); backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--line-2); padding: 14px 28px;
+}
+.nav.on-dark { color: var(--paper); }
+.nav.on-dark.scrolled { background: rgba(14,12,11,.7); border-bottom-color: rgba(244,241,235,.08); }
+.nav .brand { display: flex; align-items: center; gap: 12px; font-family: "Geist Mono", monospace; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+.nav .brand b { font-family: "Instrument Serif", serif; font-style: italic; font-size: 22px; font-weight: 400; letter-spacing: -0.01em; text-transform: none; }
+.nav ul { list-style: none; display: flex; gap: 6px; justify-content: center; }
+.nav ul a { font-family: "Geist", sans-serif; font-size: 13px; font-weight: 400; padding: 8px 14px; border-radius: 999px; transition: background .25s; opacity: .78; }
+.nav ul a:hover { opacity: 1; background: rgba(14,12,11,.06); }
+.nav.on-dark ul a:hover { background: rgba(244,241,235,.08); }
+.nav .right { display: flex; justify-content: flex-end; align-items: center; gap: 14px; }
+.nav .lang { font-family: "Geist Mono", monospace; font-size: 10px; letter-spacing: .1em; opacity: .6; text-transform: uppercase; }
+.nav .cta {
+  display: inline-flex; align-items: center; gap: 10px; font-size: 13px;
+  border: 1px solid currentColor; padding: 9px 18px; border-radius: 999px;
+  transition: background .25s, color .25s; font-weight: 500;
+}
+.nav .cta .dot { width: 6px; height: 6px; border-radius: 50%; background: #5cba6c; box-shadow: 0 0 0 0 rgba(92,186,108,.5); animation: pulse 2s ease-in-out infinite; }
+.nav .cta:hover { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.nav.on-dark .cta:hover { background: var(--paper); color: var(--ink); border-color: var(--paper); }
+@keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(92,186,108,.5); } 50% { box-shadow: 0 0 0 8px rgba(92,186,108,0); } }
+
+/* ============== HERO — split 50/50 ============== */
+.hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr auto;
+  min-height: 100vh;
+  background: var(--ink);
+  color: var(--paper);
+  overflow: hidden;
+  position: relative;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* Subtle film grain across the whole hero */
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: .07;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  z-index: 0;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='.7'/></svg>");
+}
+
+/* ── Left panel: solid ink, all the text ── */
+.hero-left {
+  grid-column: 1;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 120px 64px 64px 56px;
+  position: relative;
+  z-index: 2;
+}
+
+.hero-left .badge {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: "Geist Mono", monospace; font-size: 11px; letter-spacing: .08em;
+  text-transform: uppercase; color: rgba(244,241,235,.65);
+  width: fit-content; padding: 8px 14px;
+  border: 1px solid rgba(244,241,235,.18); border-radius: 999px;
+}
+.hero-left .badge .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--clay); }
+
+.hero-left h1 {
+  font-family: "Instrument Serif", serif; font-weight: 400;
+  font-size: clamp(68px, 8.5vw, 152px); line-height: .86; letter-spacing: -0.04em;
+}
+/* wine-red "Cinque" and "Ristorante" — user request */
+.hero-cinque { color: var(--wine); }
+.hero-left h1 .it { font-style: italic; color: var(--wine-2); }
+
+.hero-left .hero-sub { display: flex; flex-direction: column; gap: 18px; }
+.hero-left .blurb {
+  font-family: "Instrument Serif", serif; font-style: italic; font-weight: 400;
+  font-size: clamp(17px, 1.6vw, 22px); line-height: 1.35;
+  max-width: 400px; color: rgba(244,241,235,.72);
+}
+.hero-left .small {
+  font-family: "Geist Mono", monospace; font-size: 11px; letter-spacing: .08em;
+  text-transform: uppercase; color: rgba(244,241,235,.48); line-height: 1.7;
+}
+.hero-left .small b { color: var(--paper); font-weight: 500; }
+
+/* ── Right panel: image + gradient blend ── */
+.hero-right {
+  grid-column: 2;
+  grid-row: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Left-to-right gradient: ink → transparent — blends image into the left panel */
+.hero-right::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to right,
+    var(--ink)            0%,
+    rgba(14,12,11,.80)   12%,
+    rgba(14,12,11,.40)   35%,
+    rgba(14,12,11,.10)   58%,
+    transparent          82%
+  );
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Top + bottom vignette to anchor the image */
+.hero-right::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(14,12,11,.30)  0%,
+    transparent         22%,
+    transparent         68%,
+    rgba(14,12,11,.40) 100%
+  );
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* tonight bar — spans full width of the 2-col hero grid */
+.tonight {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  position: relative; z-index: 3; background: var(--paper); color: var(--ink);
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center;
+  gap: 32px; padding: 18px 40px; border-top: 1px solid var(--line);
+}
+.tonight .head { display: flex; align-items: center; gap: 14px; }
+.tonight .head .pulse { width: 8px; height: 8px; border-radius: 50%; background: #5cba6c; box-shadow: 0 0 0 0 rgba(92,186,108,.5); animation: pulse 2s ease-in-out infinite; }
+.tonight .head .label { font-family: "Geist Mono", monospace; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+.tonight .head .when { font-family: "Instrument Serif", serif; font-style: italic; font-size: 22px; color: var(--wine); }
+.tonight .slots { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.tonight .slot { display: flex; flex-direction: column; align-items: center; padding: 8px 14px; border: 1px solid var(--line); border-radius: 10px; transition: all .25s; min-width: 64px; }
+.tonight .slot.full { opacity: .35; pointer-events: none; }
+.tonight .slot:hover { border-color: var(--wine); background: var(--wine); color: var(--paper); }
+.tonight .slot .t { font-family: "Instrument Serif", serif; font-size: 20px; line-height: 1; }
+.tonight .slot .s { font-family: "Geist Mono", monospace; font-size: 9px; letter-spacing: .08em; text-transform: uppercase; opacity: .6; margin-top: 2px; }
+.tonight .end { display: flex; align-items: center; gap: 14px; }
+.tonight .end .guests { display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
+.tonight .end .guests button { padding: 8px 12px; font-size: 14px; background: transparent; }
+.tonight .end .guests button:hover { background: rgba(14,12,11,.06); }
+.tonight .end .guests .n { padding: 0 12px; font-family: "Instrument Serif", serif; font-size: 18px; min-width: 46px; text-align: center; }
+.tonight .end .guests .lbl { font-family: "Geist Mono", monospace; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; padding-right: 14px; border-left: 1px solid var(--line); padding-left: 14px; color: var(--muted); }
+
+/* ============== TICKER ============== */
+.ticker { background: var(--ink); color: var(--paper); overflow: hidden; border-bottom: 1px solid rgba(244,241,235,.08); }
+.ticker .track { display: flex; gap: 48px; padding: 18px 0; white-space: nowrap; animation: marq 60s linear infinite; font-family: "Instrument Serif", serif; font-style: italic; font-size: 26px; }
+.ticker .track .star { color: var(--clay); font-style: normal; font-size: 14px; vertical-align: 5px; }
+@keyframes marq { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+/* ============== SECTION SCAFFOLD ============== */
+section { padding: 140px 40px; }
+.wrap { max-width: 1440px; margin: 0 auto; }
+.sec-head {
+  display: flex; align-items: baseline; gap: 14px; font-family: "Geist Mono", monospace;
+  font-size: 11px; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 80px; padding-top: 8px; border-top: 1px solid var(--line);
+}
+.sec-head .num { color: var(--ink); font-weight: 500; }
+.sec-head .rule { flex: 1; }
+
+h2.big { font-family: "Instrument Serif", serif; font-weight: 400; font-size: clamp(60px, 8vw, 128px); line-height: .92; letter-spacing: -0.025em; }
+h2.big .it { font-style: italic; color: var(--wine); }
+
+/* ============== FILOSOFIA ============== */
+.filo { display: grid; grid-template-columns: 1.1fr 1fr; gap: 120px; align-items: end; }
+.filo .lead { font-family: "Instrument Serif", serif; font-style: italic; font-size: 28px; line-height: 1.3; max-width: 480px; color: var(--ink-soft); }
+.filo .body { font-size: 15.5px; line-height: 1.7; color: #3a322c; max-width: 480px; margin-top: 20px; font-weight: 300; }
+.filo-stats { margin-top: 80px; display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; border-top: 1px solid var(--line); padding-top: 32px; }
+.filo-stats .s { display: flex; flex-direction: column; gap: 6px; }
+.filo-stats .n { font-family: "Instrument Serif", serif; font-size: 56px; line-height: 1; color: var(--wine); }
+.filo-stats .n .it { font-style: italic; }
+.filo-stats .l { font-family: "Geist Mono", monospace; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+
+/* ============== CUCINA ============== */
+.cucina { background: var(--ink); color: var(--paper); margin: 0 -40px; padding: 140px 40px; }
+.cucina .sec-head { color: rgba(244,241,235,.5); border-top-color: rgba(244,241,235,.12); }
+.cucina .sec-head .num { color: var(--paper); }
+.cucina h2.big .it { color: var(--clay); }
+.cucina .intro { display: grid; grid-template-columns: 1.4fr 1fr; gap: 80px; align-items: end; margin-bottom: 80px; }
+.cucina .intro p { font-family: "Instrument Serif", serif; font-style: italic; font-size: 22px; line-height: 1.35; color: rgba(244,241,235,.72); max-width: 380px; }
+.menus { display: grid; grid-template-columns: repeat(3,1fr); gap: 32px; }
+.mcard {
+  position: relative; border: 1px solid rgba(244,241,235,.1); border-radius: 18px; overflow: hidden;
+  background: rgba(244,241,235,.02); transition: background .3s, transform .5s, border-color .3s; cursor: pointer;
+}
+.mcard:hover { background: rgba(244,241,235,.05); border-color: rgba(244,241,235,.2); transform: translateY(-4px); }
+.mcard .img { aspect-ratio: 4/3; position: relative; overflow: hidden; }
+.mcard .tag {
+  position: absolute; top: 16px; left: 16px; font-family: "Geist Mono", monospace; font-size: 10px;
+  letter-spacing: .08em; text-transform: uppercase; padding: 6px 10px;
+  background: rgba(14,12,11,.5); backdrop-filter: blur(6px); border-radius: 6px; color: var(--clay);
+}
+.mcard .body { padding: 28px; }
+.mcard h3 { font-family: "Instrument Serif", serif; font-weight: 400; font-size: 36px; line-height: 1.05; margin-bottom: 14px; }
+.mcard h3 .it { font-style: italic; color: var(--clay); }
+.mcard .desc { font-family: "Instrument Serif", serif; font-style: italic; font-size: 18px; line-height: 1.35; color: rgba(244,241,235,.7); margin-bottom: 24px; }
+.mcard .row { display: flex; justify-content: space-between; align-items: center; padding-top: 20px; border-top: 1px solid rgba(244,241,235,.1); }
+.mcard .row .hr { font-family: "Geist Mono", monospace; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: rgba(244,241,235,.55); }
+.mcard .row .price { font-family: "Instrument Serif", serif; font-style: italic; font-size: 22px; color: var(--paper); }
+
+/* ============== DISHES ============== */
+.dishes { padding-top: 160px; }
+.dishes .head { display: grid; grid-template-columns: 1.3fr 1fr; gap: 80px; align-items: end; margin-bottom: 80px; padding-bottom: 32px; border-bottom: 1px solid var(--line); }
+.dishes .head .meta { font-family: "Geist Mono", monospace; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); line-height: 1.7; }
+.dlist { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; }
+.dish { display: flex; flex-direction: column; gap: 18px; padding: 8px; border-radius: 14px; transition: background .3s; cursor: pointer; }
+.dish:hover { background: var(--paper-2); }
+.dish .pic { aspect-ratio: 1; background: var(--paper-3); border-radius: 10px; position: relative; overflow: hidden; }
+.dish .row1 { display: flex; justify-content: space-between; align-items: center; }
+.dish .tag { font-family: "Geist Mono", monospace; font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--wine); }
+.dish .price { font-family: "Instrument Serif", serif; font-size: 18px; color: var(--ink); }
+.dish h4 { font-family: "Instrument Serif", serif; font-style: italic; font-weight: 400; font-size: 24px; line-height: 1.1; color: var(--ink); }
+.dish .sub { font-size: 13px; color: var(--muted); line-height: 1.4; }
+
+/* ============== SALE ============== */
+.sale { background: var(--paper-2); margin: 0 -40px; padding: 160px 40px; }
+.sale .head { display: grid; grid-template-columns: 1.3fr 1fr; gap: 80px; align-items: end; margin-bottom: 80px; padding-bottom: 32px; border-bottom: 1px solid var(--line); }
+.sale .head p { font-family: "Instrument Serif", serif; font-style: italic; font-size: 22px; line-height: 1.35; color: var(--ink-soft); max-width: 380px; }
+.sale-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr; grid-template-rows: 520px 320px; gap: 14px; }
+.sale-grid .s1 { grid-row: span 2; }
+.sale-card { position: relative; border-radius: 18px; overflow: hidden; background: #2a201c; color: var(--paper); transition: transform .5s; }
+.sale-card:hover { transform: translateY(-4px); }
+.sale-card::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 30%, rgba(14,12,11,.85) 100%); pointer-events: none; }
+.sale-card .tag { position: absolute; top: 18px; left: 18px; font-family: "Geist Mono", monospace; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; padding: 6px 10px; background: rgba(14,12,11,.4); backdrop-filter: blur(6px); border-radius: 6px; color: var(--clay); z-index: 2; }
+.sale-card .cap { position: absolute; top: 18px; right: 18px; font-family: "Instrument Serif", serif; font-style: italic; font-size: 22px; color: var(--paper); z-index: 2; }
+.sale-card .cap .n { color: var(--clay); font-size: 32px; margin-right: 4px; vertical-align: -3px; }
+.sale-card .body { position: absolute; left: 24px; right: 24px; bottom: 24px; z-index: 2; }
+.sale-card h4 { font-family: "Instrument Serif", serif; font-weight: 400; font-size: 30px; line-height: 1; margin-bottom: 8px; }
+.sale-card h4 .it { font-style: italic; color: var(--clay); }
+.sale-card .desc { font-family: "Instrument Serif", serif; font-style: italic; font-size: 15px; line-height: 1.35; color: rgba(244,241,235,.85); max-width: 360px; }
+
+/* ============== GALLERY ============== */
+.gal { padding: 160px 40px; background: var(--paper); }
+.gal .head { display: grid; grid-template-columns: 1.3fr 1fr; gap: 80px; align-items: end; margin-bottom: 60px; }
+.gal .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 32px; }
+.gal .filters button { padding: 8px 16px; border: 1px solid var(--line); border-radius: 999px; font-size: 13px; color: var(--ink-soft); transition: all .25s; }
+.gal .filters button.on { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.gal .filters button:hover:not(.on) { border-color: var(--ink); }
+.ggrid { display: grid; grid-template-columns: repeat(12,1fr); grid-auto-rows: 140px; gap: 14px; }
+.gtile { position: relative; background: var(--paper-3); border-radius: 14px; overflow: hidden; transition: transform .5s; }
+.gtile:hover { transform: scale(1.01); }
+.gtile .tag { position: absolute; bottom: 12px; left: 12px; font-family: "Geist Mono", monospace; font-size: 9px; letter-spacing: .08em; text-transform: uppercase; color: var(--paper); background: rgba(14,12,11,.55); backdrop-filter: blur(4px); padding: 5px 9px; border-radius: 5px; z-index: 2; }
+
+/* ============== TEAM ============== */
+.team { padding: 160px 40px; background: var(--ink); color: var(--paper); }
+.team .grid { max-width: 1440px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1.1fr; gap: 100px; align-items: center; }
+.team .left h2 { font-family: "Instrument Serif", serif; font-weight: 400; font-size: clamp(56px, 7vw, 108px); line-height: .95; letter-spacing: -0.02em; margin-bottom: 40px; }
+.team .left h2 .it { font-style: italic; color: var(--clay); }
+.team .left .quote { font-family: "Instrument Serif", serif; font-style: italic; font-size: 30px; line-height: 1.3; color: rgba(244,241,235,.92); margin-bottom: 40px; max-width: 520px; }
+.team .left .sig { font-family: "Instrument Serif", serif; font-style: italic; font-size: 26px; color: var(--clay); }
+.team .left .role { font-family: "Geist Mono", monospace; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: rgba(244,241,235,.55); margin-top: 6px; }
+.team .photo { position: relative; aspect-ratio: 4/5; border-radius: 18px; overflow: hidden; background: var(--ink-soft); }
+
+/* ============== RESERVA ============== */
+.reserva { background: var(--paper); padding: 160px 40px; position: relative; overflow: hidden; }
+.reserva .bignum {
+  position: absolute; font-family: "Instrument Serif", serif; font-style: italic;
+  font-size: 72vh; line-height: .7; right: -3%; top: 50%; transform: translateY(-50%);
+  color: rgba(107,20,20,.06); pointer-events: none; user-select: none; font-weight: 400;
+}
+.reserva-wrap { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1.1fr; gap: 80px; align-items: center; position: relative; z-index: 2; }
+.reserva h2 { font-family: "Instrument Serif", serif; font-weight: 400; font-size: clamp(52px, 6vw, 92px); line-height: .95; letter-spacing: -0.02em; }
+.reserva h2 .it { font-style: italic; color: var(--wine); }
+.reserva .lead { font-family: "Instrument Serif", serif; font-style: italic; font-size: 22px; line-height: 1.35; color: var(--ink-soft); margin-top: 28px; max-width: 380px; }
+.reserva .phone { display: flex; align-items: center; gap: 14px; margin-top: 40px; padding: 18px 22px; background: var(--ink); color: var(--paper); border-radius: 14px; width: fit-content; }
+.reserva .phone .pdot { width: 8px; height: 8px; border-radius: 50%; background: #5cba6c; box-shadow: 0 0 0 0 rgba(92,186,108,.5); animation: pulse 2s ease-in-out infinite; }
+.reserva .phone .num { font-family: "Instrument Serif", serif; font-size: 24px; }
+.reserva .phone .lab { font-family: "Geist Mono", monospace; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: rgba(244,241,235,.55); }
+
+.resform { background: var(--paper); border: 1px solid var(--line); border-radius: 22px; padding: 36px; box-shadow: 0 1px 0 rgba(14,12,11,.04), 0 24px 48px -28px rgba(14,12,11,.18); }
+.resform .progress { display: flex; justify-content: space-between; font-family: "Geist Mono", monospace; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 32px; }
+.resform .progress span.active { color: var(--ink); }
+.resform .field { margin-bottom: 24px; }
+.resform label { display: block; font-family: "Geist Mono", monospace; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+.resform .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.resform .chip { padding: 10px 16px; border: 1px solid var(--line); background: transparent; border-radius: 10px; font-family: "Instrument Serif", serif; font-size: 18px; color: var(--ink); transition: all .2s; }
+.resform .chip:hover { border-color: var(--ink); }
+.resform .chip.sel { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.resform .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.resform input, .resform select { width: 100%; padding: 14px 16px; background: var(--paper-2); border: 1px solid transparent; border-radius: 10px; color: var(--ink); font-family: "Instrument Serif", serif; font-size: 20px; outline: none; transition: border-color .2s, background .2s; }
+.resform input:focus, .resform select:focus { border-color: var(--ink); background: var(--paper); }
+.resform input::placeholder { color: var(--muted); opacity: .6; }
+.resform .submit { width: 100%; margin-top: 8px; padding: 18px; background: var(--wine); color: var(--paper); font-family: "Geist", sans-serif; font-size: 13px; letter-spacing: .04em; font-weight: 500; border-radius: 12px; transition: background .25s; border: none; }
+.resform .submit:hover { background: var(--wine-2); }
+.resform .submit:disabled { opacity: .4; cursor: not-allowed; }
+.resform .ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+.resform .ghost:hover { background: var(--paper-2); }
+.confirmed { text-align: center; padding: 30px 16px; }
+.confirmed .ck { width: 60px; height: 60px; border-radius: 50%; background: var(--moss); color: var(--paper); margin: 0 auto 24px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+.confirmed h3 { font-family: "Instrument Serif", serif; font-style: italic; font-weight: 400; font-size: 40px; margin-bottom: 10px; }
+.confirmed p { font-family: "Instrument Serif", serif; font-style: italic; font-size: 20px; color: var(--ink-soft); line-height: 1.35; }
+.confirmed .recap { margin-top: 32px; padding: 20px; background: var(--paper-2); border-radius: 12px; font-family: "Geist Mono", monospace; font-size: 11px; letter-spacing: .06em; color: var(--ink); text-transform: uppercase; line-height: 1.9; }
+.confirmed .reset { margin-top: 20px; font-size: 12px; color: var(--wine); border-bottom: 1px solid var(--wine); padding-bottom: 2px; background: none; border-top: none; border-left: none; border-right: none; }
+
+/* ============== FOOTER ============== */
+footer { background: var(--ink); color: var(--paper); padding: 120px 40px 36px; border-top: 1px solid rgba(244,241,235,.08); }
+.ft-top { max-width: 1440px; margin: 0 auto 80px; display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 60px; }
+.ft-top h3 { font-family: "Instrument Serif", serif; font-weight: 400; font-size: 64px; line-height: .95; margin-bottom: 24px; }
+.ft-top h3 .it { font-style: italic; color: var(--clay); }
+.ft-top p.lead { font-family: "Instrument Serif", serif; font-style: italic; font-size: 20px; line-height: 1.4; color: rgba(244,241,235,.72); max-width: 360px; margin-bottom: 24px; }
+.ft-top h4 { font-family: "Geist Mono", monospace; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: rgba(244,241,235,.5); margin-bottom: 18px; }
+.ft-top .col p, .ft-top .col a, .ft-top .col li { font-family: "Instrument Serif", serif; font-size: 18px; line-height: 1.7; color: rgba(244,241,235,.85); list-style: none; }
+.ft-top .col a { display: block; transition: color .25s; }
+.ft-top .col a:hover { color: var(--clay); }
+.status { display: inline-flex; align-items: center; gap: 8px; font-family: "Geist Mono", monospace; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; padding: 8px 14px; border: 1px solid rgba(244,241,235,.15); border-radius: 999px; }
+.status .dot { width: 6px; height: 6px; border-radius: 50%; background: #5cba6c; box-shadow: 0 0 0 0 rgba(92,186,108,.5); animation: pulse 2s ease-in-out infinite; }
+.ft-mega { max-width: 1440px; margin: 0 auto; border-top: 1px solid rgba(244,241,235,.1); padding-top: 40px; padding-bottom: 40px; }
+/* Mega "CINQUE" uses wine red per user request — not paper/clay */
+.ft-mega .word {
+  font-family: "Instrument Serif", serif; font-size: clamp(120px, 22vw, 360px);
+  line-height: .85; letter-spacing: -0.04em; text-align: center;
+  color: var(--wine); position: relative;
+}
+.ft-mega .word .it { font-style: italic; color: var(--wine-2); }
+.ft-base { max-width: 1440px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; font-family: "Geist Mono", monospace; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: rgba(244,241,235,.45); padding-top: 32px; border-top: 1px solid rgba(244,241,235,.08); }
+.ft-base .lk { display: flex; align-items: center; gap: 14px; }
+.ft-base .lk img { height: 32px; filter: brightness(1.1); width: auto; }
+
+/* ============== FLOATING DOCK ============== */
+.dock {
+  position: fixed; bottom: 24px; right: 24px; z-index: 50; display: flex; align-items: center;
+  gap: 8px; background: var(--ink); color: var(--paper); border-radius: 999px;
+  padding: 8px 8px 8px 22px; box-shadow: 0 12px 40px -10px rgba(14,12,11,.4);
+  transform: translateY(120%); transition: transform .5s cubic-bezier(.5,.1,.2,1);
+}
+.dock.show { transform: translateY(0); }
+.dock .info { display: flex; flex-direction: column; line-height: 1.1; }
+.dock .info .t { font-family: "Geist Mono", monospace; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: rgba(244,241,235,.55); }
+.dock .info .v { font-family: "Instrument Serif", serif; font-style: italic; font-size: 18px; }
+.dock .go { background: var(--wine); color: var(--paper); padding: 12px 22px; border-radius: 999px; font-size: 13px; font-weight: 500; transition: background .25s; }
+.dock .go:hover { background: var(--wine-2); }
+
+/* ============ RESPONSIVE ============ */
+
+/* ── Hero: tablet (split still works but tighter) ── */
+@media (max-width: 1100px) and (min-width: 769px) {
+  .hero-left {
+    padding: 110px 40px 56px 36px;
+  }
+  .hero-left h1 {
+    font-size: clamp(60px, 7.5vw, 120px);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ── Hero: mobile — stack vertically ── */
+@media (max-width: 768px) {
+  .hero {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr auto;
+  }
+
+  /* Image moves to the TOP on mobile */
+  .hero-right {
+    grid-column: 1;
+    grid-row: 1;
+    height: clamp(220px, 58vw, 400px);
+  }
+
+  /* On mobile: gradient goes bottom-to-top so image fades into the text panel below */
+  .hero-right::before {
+    background: linear-gradient(
+      to bottom,
+      rgba(14,12,11,.15)  0%,
+      transparent         25%,
+      rgba(14,12,11,.55)  72%,
+      var(--ink)          100%
+    );
+  }
+  .hero-right::after { display: none; }
+
+  /* Text panel below image */
+  .hero-left {
+    grid-column: 1;
+    grid-row: 2;
+    padding: 36px 24px 48px;
+    gap: 28px;
+    justify-content: flex-start;
+  }
+  .hero-left h1 { font-size: clamp(52px, 13.5vw, 88px); }
+  .hero-left .blurb { max-width: 100%; }
+
+  /* Tonight bar at the bottom */
+  .tonight {
+    grid-column: 1;
+    grid-row: 3;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 18px 24px;
+  }
+  .tonight .end { justify-content: center; }
+}
+
+/* ── All other sections ── */
+@media (max-width: 1100px) {
+  .filo, .cucina .intro, .sale .head, .dishes .head, .gal .head, .team .grid, .reserva-wrap, .ft-top { grid-template-columns: 1fr; gap: 40px; }
+  .menus, .dlist { grid-template-columns: repeat(2,1fr); }
+  .sale-grid { grid-template-columns: 1fr 1fr; grid-template-rows: auto; gap: 14px; }
+  .sale-grid .s1 { grid-row: auto; grid-column: span 2; min-height: 360px; }
+  .sale-card { min-height: 280px; }
+  .filo-stats { grid-template-columns: repeat(2,1fr); gap: 32px; }
+  .tonight { grid-template-columns: auto 1fr auto; gap: 32px; padding: 18px 40px; }
+}
+@media (max-width: 700px) {
+  .nav ul { display: none; }
+  section, .cucina, .sale, .gal, .team, .reserva, footer { padding: 80px 24px; }
+  .cucina, .sale { margin: 0 -24px; padding: 80px 24px; }
+  .menus, .dlist { grid-template-columns: 1fr; }
+  .sale-grid { grid-template-columns: 1fr; grid-template-rows: auto; }
+  .sale-grid .s1 { grid-column: auto; }
+  .ggrid { grid-template-columns: repeat(2,1fr); grid-auto-rows: 120px; }
+  .ggrid > * { grid-column: auto !important; grid-row: auto !important; }
+  .ft-top { grid-template-columns: 1fr; gap: 40px; }
 }
