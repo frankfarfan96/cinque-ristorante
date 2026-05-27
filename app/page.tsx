@@ -10,6 +10,7 @@ interface BerlinTime {
   open: boolean
   hh: number
   mm: number
+  weekend: boolean
 }
 
 interface TonightSlot {
@@ -32,7 +33,7 @@ function nowBerlin(): BerlinTime {
   const mins = hh * 60 + mm
   const wk = dy === 0 || dy === 6
   const open = wk ? (mins >= 16 * 60 && mins < 24 * 60) : (mins >= 11 * 60 + 30 && mins < 24 * 60)
-  return { time: `${parts.hour}:${parts.minute}`, dateLong: `${parts.weekday} ${parts.day} ${parts.month}`, open, hh, mm }
+  return { time: `${parts.hour}:${parts.minute}`, dateLong: `${parts.weekday} ${parts.day} ${parts.month}`, open, hh, mm, weekend: wk }
 }
 
 function useBerlin(): BerlinTime {
@@ -130,7 +131,7 @@ function Hero() {
             <div>
               {bt.open
                 ? <>Aperto adesso · chiusura 24:00</>
-                : <>Chiuso · {bt.hh < 12 ? 'apertura 11:30' : 'apertura 16:00'}</>
+                : <>Chiuso · {bt.weekend ? 'apertura 16:00' : 'apertura 11:30'}</>
               }
             </div>
           </div>
@@ -222,10 +223,10 @@ function Filosofia() {
           </div>
         </div>
         <div className="filo-stats">
-          <div className="s"><div className="n">XX</div><div className="l">Anni a Berlino</div></div>
-          <div className="s"><div className="n">5</div><div className="l">Sale private</div></div>
-          <div className="s"><div className="n">80<span className="it">+</span></div><div className="l">Etichette di vino</div></div>
-          <div className="s"><div className="n">100<span className="it">%</span></div><div className="l">Pasta fatta in casa</div></div>
+          <div className="s"><div className="n">20<span className="it">+</span></div><div className="l">Anni a Berlino</div></div>
+          <div className="s"><div className="n">3</div><div className="l">Sale private</div></div>
+          <div className="s"><div className="n">3</div><div className="l">Menù stagionali</div></div>
+          <div className="s"><div className="n">1</div><div className="l">Terrazza estiva</div></div>
         </div>
       </div>
     </section>
@@ -301,10 +302,10 @@ function Cucina() {
 /* ---------- Dishes ---------- */
 function Dishes() {
   const dishes = [
-    { tag: 'Antipasto', name: 'Burrata di Andria', sub: 'con pomodorini confit e basilico fresco', price: '14 €' },
-    { tag: 'Primo', name: 'Tagliolini al tartufo', sub: 'pasta tirata al mattino', price: '24 €' },
-    { tag: 'Secondo', name: 'Branzino al sale', sub: 'pescato del giorno, verdure di stagione', price: '32 €' },
-    { tag: 'Dolce', name: 'Tiramisù Cinque', sub: 'ricetta della casa, mascarpone fresco', price: '12 €' },
+    { tag: 'Antipasto', name: 'Burrata di Andria', sub: 'con pomodorini confit e basilico fresco', price: '' },
+    { tag: 'Primo', name: 'Tagliolini al tartufo', sub: 'pasta tirata al mattino', price: '' },
+    { tag: 'Secondo', name: 'Branzino al sale', sub: 'pescato del giorno, verdure di stagione', price: '' },
+    { tag: 'Dolce', name: 'Tiramisù Cinque', sub: 'ricetta della casa, mascarpone fresco', price: '' },
   ]
   return (
     <section className="dishes light">
@@ -312,8 +313,8 @@ function Dishes() {
         <div className="head">
           <h2 className="big">Piatti che <span className="it">raccontano una collina.</span></h2>
           <div className="meta">
-            Selezione del periodo<br />
-            <span style={{ color: 'var(--wine)' }}>Cambia mensilmente →</span>
+            Selezione stagionale<br />
+            <span style={{ color: 'var(--wine)' }}>Vedi la Speisekarte →</span>
           </div>
         </div>
         <div className="dlist">
@@ -322,7 +323,7 @@ function Dishes() {
               <div className="pic"><div className="img-slot" /></div>
               <div className="row1">
                 <span className="tag">— {d.tag}</span>
-                <span className="price">{d.price}</span>
+                {d.price && <span className="price">{d.price}</span>}
               </div>
               <h4>{d.name}</h4>
               <div className="sub">{d.sub}</div>
@@ -345,11 +346,11 @@ interface SaleCard {
 
 function Sale() {
   const cards: SaleCard[] = [
-    { cls: 's1', tag: 'Sala 01 · Loggia', cap: 30, name: <>La <span className="it">Loggia</span></>, desc: 'Zona separata ed elevata, perfetta per cene aziendali e celebrazioni familiari. Vista sulla sala principale.' },
-    { cls: 's2', tag: "Sala 02 · D'Ala", cap: 40, name: <>Sala <span className="it">d&apos;Ala</span></>, desc: 'Tavoli assemblati per matrimoni e ricorrenze fino a quaranta ospiti.' },
-    { cls: 's3', tag: 'Sala 03 · Lounge', cap: 16, name: <>Il <span className="it">Lounge</span></>, desc: 'Ingresso privato, atmosfera intima. Cene riservate fino a sedici persone.' },
-    { cls: 's4', tag: 'Esperienza', cap: 0, name: <>Cena <span className="it">degustazione</span></>, desc: 'Sei portate, abbinamento vini, racconto dello chef in sala.' },
-    { cls: 's5', tag: 'Privé', cap: 0, name: <>Eventi <span className="it">corporativi</span></>, desc: 'Presentazioni di prodotto, cene di chiusura, accordi al calice.' },
+    { cls: 's1', tag: 'Sala 01 · Séparée', cap: 30, name: <>Il <span className="it">Séparée</span></>, desc: 'Zona riservata per cene aziendali e celebrazioni familiari. Fino a trenta ospiti.' },
+    { cls: 's2', tag: 'Sala 02 · Flügelsaal', cap: 40, name: <>Il <span className="it">Flügelsaal</span></>, desc: 'La nostra sala più ampia — matrimoni, ricorrenze e ricevimenti fino a quaranta ospiti.' },
+    { cls: 's3', tag: 'Sala 03 · Lounge', cap: 16, name: <>Il <span className="it">Lounge</span></>, desc: 'Ingresso privato indipendente. Atmosfera intima per cene riservate fino a sedici persone.' },
+    { cls: 's4', tag: 'Terrazza', cap: 0, name: <>La <span className="it">Terrazza</span></>, desc: 'Aperta in estate, la terrazza offre un\'oasi di verde nel cuore di Berlino.' },
+    { cls: 's5', tag: 'Veranstaltungen', cap: 0, name: <>Eventi <span className="it">su misura</span></>, desc: 'Presentazioni aziendali, cene di gala e celebrazioni private con menù costruiti su misura.' },
   ]
   return (
     <section className="sale light" id="sale">
@@ -391,16 +392,16 @@ function Galleria() {
   const [f, setF] = useState('Tutto')
   const tiles: GalleryTile[] = [
     { col: 'span 6', row: 'span 3', tag: 'La Sala' },
-    { col: 'span 3', row: 'span 2', tag: 'Vino', cat: 'Cucina' },
-    { col: 'span 3', row: 'span 2', tag: 'Pesce del giorno', cat: 'Cucina' },
-    { col: 'span 4', row: 'span 2', tag: 'Terrazza', cat: 'Sale' },
-    { col: 'span 4', row: 'span 2', tag: 'Antipasto', cat: 'Cucina' },
-    { col: 'span 4', row: 'span 2', tag: 'Dolci', cat: 'Cucina' },
-    { col: 'span 3', row: 'span 2', tag: 'Lampade', cat: 'Sale' },
-    { col: 'span 3', row: 'span 2', tag: 'Bottiglie', cat: 'Cucina' },
-    { col: 'span 6', row: 'span 2', tag: 'Mise en place', cat: 'Sale' },
+    { col: 'span 3', row: 'span 2', tag: 'Vino', cat: 'Speisen' },
+    { col: 'span 3', row: 'span 2', tag: 'Pesce del giorno', cat: 'Speisen' },
+    { col: 'span 4', row: 'span 2', tag: 'Terrazza', cat: 'Terrasse' },
+    { col: 'span 4', row: 'span 2', tag: 'Antipasto', cat: 'Speisen' },
+    { col: 'span 4', row: 'span 2', tag: 'Dolci', cat: 'Speisen' },
+    { col: 'span 3', row: 'span 2', tag: 'Séparée', cat: 'Räume' },
+    { col: 'span 3', row: 'span 2', tag: 'Flügelsaal', cat: 'Räume' },
+    { col: 'span 6', row: 'span 2', tag: 'Mise en place', cat: 'Räume' },
   ]
-  const filters = ['Tutto', 'Cucina', 'Sale']
+  const filters = ['Tutto', 'Speisen', 'Räume', 'Terrasse']
   return (
     <section className="gal" id="galleria">
       <div className="wrap">
@@ -422,7 +423,7 @@ function Galleria() {
         </div>
         <div className="ggrid">
           {tiles.map((t, i) => {
-            const show = f === 'Tutto' || (t.cat || 'Cucina') === f
+            const show = f === 'Tutto' || (t.cat || 'Räume') === f
             if (!show) return null
             return (
               <div key={i} className="gtile" style={{ gridColumn: t.col, gridRow: t.row }}>
@@ -446,10 +447,10 @@ function Team() {
           <div className="sec-head" style={{ color: 'rgba(244,241,235,.5)', borderTopColor: 'rgba(244,241,235,.12)' }}>
             <span className="num" style={{ color: 'var(--paper)' }}>05</span> La Squadra <span className="rule" />
           </div>
-          <h2>La nostra <span className="it">famiglia<br />in cucina.</span></h2>
-          <div className="quote">«Il segreto di un piatto non sta nella ricetta, ma nelle mani che lo preparano ogni sera con la stessa cura della prima volta.»</div>
-          <div className="sig">— Lo Chef</div>
-          <div className="role">Capo cucina · Cinque Ristorante</div>
+          <h2>La nostra <span className="it">squadra<br />in sala.</span></h2>
+          <div className="quote">«Cucina italiana autentica, servita da un team eccellente e motivato — ogni giorno con la stessa passione dal 2006.»</div>
+          <div className="sig">— Ristorante &amp; Bar Cinque</div>
+          <div className="role">Leitung Ristorante · Berlino Mitte</div>
         </div>
         <div className="photo">
           <div className="img-slot" />
@@ -599,10 +600,10 @@ function Foot() {
         </div>
         <div className="col">
           <h4>Contatto</h4>
-          <a href="tel:+4930280962240">+49 030 280 96 224</a>
-          <a href="mailto:info@cinque.berlin">info@cinque.berlin</a>
-          <a href="#">Instagram →</a>
-          <a href="#">Indicazioni →</a>
+          <a href="tel:+4930280962240">030 · 280 96 224</a>
+          <a href="mailto:info@ristorante-cinque.de">info@ristorante-cinque.de</a>
+          <a href="https://www.instagram.com/ristorante_cinque" target="_blank" rel="noopener noreferrer">@ristorante_cinque →</a>
+          <a href="https://www.ristorante-cinque.de" target="_blank" rel="noopener noreferrer">ristorante-cinque.de →</a>
         </div>
       </div>
 
@@ -614,7 +615,7 @@ function Foot() {
       <div className="ft-base">
         <div className="lk">
           <Image src="/logo_restaurante.png" alt="Cinque Ristorante" width={120} height={32} style={{ height: 32, width: 'auto', objectFit: 'contain' }} />
-          <span>© Cinque Ristorante GmbH · MMVI — MMXXVI</span>
+          <span>© Ristorante &amp; Bar Cinque GmbH · MMVI — MMXXVI</span>
         </div>
         <div>
           <a href="#" style={{ marginRight: 24 }}>Aviso legal</a>
