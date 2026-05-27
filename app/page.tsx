@@ -82,8 +82,7 @@ function Nav() {
   return (
     <nav className={`nav ${scrolled ? 'scrolled' : ''} ${onDark ? 'on-dark' : ''}`}>
       <a href="#top" className="brand">
-        <b>Cinque</b>
-        <span style={{ opacity: .5 }}>/ Ristorante · Berlino</span>
+        <Image src="/logo_restaurante.png" alt="Cinque Ristorante" width={120} height={38} className="brand-logo" />
       </a>
       <ul>
         <li><a href="#filosofia">Filosofia</a></li>
@@ -416,7 +415,7 @@ function Galleria() {
                 <button key={x} className={f === x ? 'on' : ''} onClick={() => setF(x)}>{x}</button>
               ))}
             </div>
-            <div style={{ fontFamily: '"Instrument Serif",serif', fontStyle: 'italic', fontSize: 20, color: 'var(--muted)', lineHeight: 1.4 }}>
+            <div style={{ fontFamily: '"Cormorant Garamond",serif', fontStyle: 'italic', fontWeight: 300, fontSize: 20, color: 'var(--muted)', lineHeight: 1.4 }}>
               Cibo, sale private e terrazza. Una camera lenta dentro casa nostra.
             </div>
           </div>
@@ -447,13 +446,20 @@ function Team() {
           <div className="sec-head" style={{ color: 'rgba(244,241,235,.5)', borderTopColor: 'rgba(244,241,235,.12)' }}>
             <span className="num" style={{ color: 'var(--paper)' }}>05</span> La Squadra <span className="rule" />
           </div>
-          <h2>La nostra <span className="it">squadra<br />in sala.</span></h2>
-          <div className="quote">«Cucina italiana autentica, servita da un team eccellente e motivato — ogni giorno con la stessa passione dal 2006.»</div>
-          <div className="sig">— Ristorante &amp; Bar Cinque</div>
-          <div className="role">Leitung Ristorante · Berlino Mitte</div>
+          <h2>Una famiglia<br /><span className="it">in sala.</span></h2>
+          <div className="quote">«Team eccellente e motivato — ogni giorno con la stessa passione e dedizione dal 2006. La nostra cucina italiana è un atto d&apos;amore.»</div>
+          <div className="sig">— Il Proprietario</div>
+          <div className="role">Direzione · Ristorante &amp; Bar Cinque</div>
         </div>
-        <div className="photo">
-          <div className="img-slot" />
+        <div className="photos">
+          <div className="team-photo">
+            <div className="img-slot" />
+            <div className="ph-tag">La Squadra</div>
+          </div>
+          <div className="owner-photo">
+            <div className="img-slot" />
+            <div className="ph-tag">Il Proprietario</div>
+          </div>
         </div>
       </div>
     </section>
@@ -464,20 +470,16 @@ function Team() {
 function Reserva() {
   const [step, setStep] = useState(1)
   const [guests, setGuests] = useState<number | string>(2)
-  const [date, setDate] = useState('')
+  const [date, setDate] = useState<string>(() => {
+    const d = new Date()
+    d.setDate(d.getDate() + 1)
+    return d.toISOString().slice(0, 10)
+  })
   const [time, setTime] = useState('')
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [done, setDone] = useState(false)
   const times = ['12:00', '13:00', '14:00', '18:30', '19:30', '20:30', '21:30']
-
-  useEffect(() => {
-    if (!date) {
-      const d = new Date()
-      d.setDate(d.getDate() + 1)
-      setDate(d.toISOString().slice(0, 10))
-    }
-  }, [])
 
   function submit(e: React.FormEvent) {
     e.preventDefault()
