@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, ReactNode } from 'react'
+import { useState, useEffect, useRef, ReactNode } from 'react'
 import Image from 'next/image'
 
 /* ---------- Types ---------- */
@@ -106,6 +106,22 @@ function Hero() {
   const bt = useBerlin()
   const [guests, setGuests] = useState(2)
   const slots = computeTonightSlots()
+  const parallaxRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const fn = () => {
+      const wrap = parallaxRef.current
+      const hero = document.getElementById('top')
+      if (!wrap || !hero) return
+      const { bottom, height } = hero.getBoundingClientRect()
+      if (bottom < 0) return
+      const offset = Math.min(window.scrollY * 0.22, height * 0.25)
+      wrap.style.transform = `translateY(-${offset}px)`
+    }
+    fn()
+    window.addEventListener('scroll', fn, { passive: true })
+    return () => window.removeEventListener('scroll', fn)
+  }, [])
 
   return (
     <section className="hero" id="top">
@@ -139,13 +155,15 @@ function Hero() {
 
       {/* ── Right panel: image, blends into left via gradient ── */}
       <div className="hero-right">
-        <Image
-          src="/hero_1.jpg"
-          alt="Vista del comedor principal de Cinque Ristorante"
-          fill
-          style={{ objectFit: 'cover', objectPosition: 'center' }}
-          priority
-        />
+        <div ref={parallaxRef} className="parallax-wrap">
+          <Image
+            src="/hero_1.jpg"
+            alt="Vista del comedor principal de Cinque Ristorante"
+            fill
+            style={{ objectFit: 'cover', objectPosition: 'center' }}
+            priority
+          />
+        </div>
       </div>
 
       {/* ── Tonight bar: spans full width (grid-column 1/-1) ── */}

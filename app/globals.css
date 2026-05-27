@@ -149,6 +149,16 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   overflow: hidden;
 }
 
+/* Parallax wrapper: oversized so the image never shows a gap while translating */
+.parallax-wrap {
+  position: absolute;
+  top: -25%;
+  bottom: -25%;
+  left: 0;
+  right: 0;
+  will-change: transform;
+}
+
 /* Left-to-right gradient: ink → transparent — blends image into the left panel */
 .hero-right::before {
   content: '';
